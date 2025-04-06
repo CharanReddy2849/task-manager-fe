@@ -1,3 +1,3 @@
 export const environment = {
-    baseUrl:''
+    baseUrl:'https://task-manager-be-opal.vercel.app'
 }

@@ -1,5 +1,7 @@
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { CommonService } from '../../../common.service';
 
 @Component({
   selector: 'app-create-task',
@@ -10,43 +12,56 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 })
 export class CreateTaskComponent {
   fb = inject(FormBuilder);
-  // taskService = inject(TaskService);
-  // toastr = inject(ToastrService);
+  toastr = inject(ToastrService);
+  cs = inject(CommonService);
 
   @Input() task: any;
   @Input() refresh: () => void = () => {};
-  @Output() close = new EventEmitter<void>();
+  @Output() close = new EventEmitter<boolean>();
 
-  loading = signal(false);
+  loading:boolean = false;
 
-  form = this.fb.group({
-    title: '',
-    description: '',
-    category: '',
+  taskForm = this.fb.group({
+    title: ['',Validators.required],
+    description: ['',Validators.required],
+    category: ['',Validators.required],
     status: 'pending',
+    tags:'important'
   });
 
   ngOnInit() {
     if (this.task) {
-      this.form.patchValue(this.task);
+      console.log(this.task)
+      this.taskForm.patchValue(this.task);
     }
   }
 
   saveTask() {
-    // this.loading.set(true);
-    // const operation = this.task && this.task._id
-    //   ? this.taskService.updateTask(this.task._id, this.form.value)
-    //   : this.taskService.createTask(this.form.value);
+    this.loading = true;
+    let payload;
+    if(this.task && this.task?._id){
+      payload = {
+        id:this.task._id,
+        taskData:this.taskForm.value
+      }
+    }
 
-    // operation.subscribe({
-    //   next: () => {
-    //     this.toastr.success('Task saved successfully!');
-    //     this.refresh();
-    //     this.close.emit();
-    //   },
-    //   error: () => this.toastr.error('Failed to save task'),
-    //   complete: () => this.loading.set(false)
-    // });
+    const operation = this.task && this.task._id
+      ? this.cs.updateTask(payload)
+      : this.cs.createTask(this.taskForm.value);
+
+    operation.subscribe({
+      next: () => {
+        this.toastr.success('Task saved successfully!');
+        this.refresh();
+        this.loading = false
+        this.close.emit(true);
+      },
+      error: () => {
+        this.loading = false
+        this.toastr.error('Failed to save task')
+      }
+    });
   }
 
 }

@@ -1,21 +1,24 @@
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">{{ task ? 'Edit Task' : 'New Task' }}</h3>
-        <button (click)="close.emit()" class="text-gray-500 hover:text-gray-800">&times;</button>
-      </div>
-      <form [formGroup]="form" (ngSubmit)="saveTask()" class="grid gap-4">
-        <input formControlName="title" placeholder="Task Title" class="border p-2 rounded" />
-        <textarea formControlName="description" placeholder="Description" class="border p-2 rounded"></textarea>
-        <input formControlName="category" placeholder="Category / Tag" class="border p-2 rounded" />
-        <select formControlName="status" class="border p-2 rounded">
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-        </select>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded" [disabled]="loading()">
-          <span *ngIf="loading(); else btnLabel">Saving...</span>
-          <ng-template #btnLabel>{{ task ? 'Update' : 'Create' }} Task</ng-template>
-        </button>
-      </form>
+  <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">{{ task ? 'Edit Task' : 'New Task' }}</h3>
+      <button (click)="close.emit(false)" class="text-gray-500 hover:text-gray-800">&times;</button>
     </div>
+    <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="grid gap-4">
+      <input formControlName="title" placeholder="Task Title" class="border p-2 rounded" />
+      <textarea formControlName="description" placeholder="Description" class="border p-2 rounded"></textarea>
+      <input formControlName="category" placeholder="Category / Tag" class="border p-2 rounded" />
+      <select formControlName="status" class="border p-2 rounded">
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50" [disabled]="taskForm.invalid || loading">
+        @if(loading){
+        <span>Saving...</span>
+        } @else {
+        <span>{{ task ? 'Update' : 'Create' }} Task</span>
+        }
+      </button>
+    </form>
   </div>
+</div>
